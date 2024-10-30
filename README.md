@@ -5,7 +5,7 @@ Installer Tkinker pour WSL :
 ## Branch
 Chacun possède une branch, avant de prog, pensez à `pull`. Ne pas `push` votre travail, avant il faut check les fichiers qui ont été modifier pour éviter de créer un conflit. Pour `pull` les modifications de la branche main, faites `git rebase main`.
 > [!WARNING]
-> Avant de `pull` vos modifications, annoncez aux autres les fichiers que vous avez modifiers.
+> Avant de `push` vos modifications, annoncez aux autres les fichiers que vous avez modifiers.
 ## To Do
 ### Evan
   Créer les fonctions create_grid(), place_mines(), check_win()
