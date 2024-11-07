@@ -1,67 +1,100 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 
-W_WIDTH, W_HEIGHT = 800, 800
-
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
-
-        # Configure window
-        self.title("Démineur")
+class DifficultyMenu(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Chose Difficulty")
         self.resizable(False, False)
-        self.geometry(f"{W_WIDTH}x{W_HEIGHT}")
+        self.geometry("200x400")
 
-        # Center frame in the window
-        self.main_frame = ttk.Frame(self, padding="10")
-        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
+        self.parent = parent
 
-        # Center main_frame in window
-        self.main_frame.grid_rowconfigure(0, weight=1)
-        self.main_frame.grid_rowconfigure(7, weight=1)  # Rows above and below buttons
-        self.main_frame.grid_columnconfigure(0, weight=1)
+        self.easy_button = ttk.Button(self, text="Easy", command=self.on_easy)
+        self.easy_button.pack(pady=10)
 
-        # Create and layout buttons with increased size
-        button_options = {"padding": (20, 10)}
+        self.medium_button = ttk.Button(self, text="Medium", command=self.on_medium)
+        self.medium_button.pack(pady=10)
 
-        self.new_game_button = ttk.Button(self.main_frame, text="New Game", command=self.on_new_game, **button_options)
-        self.new_game_button.grid(row=1, column=0, padx=5, pady=5)
+        self.hard_button = ttk.Button(self, text="Hard", command=self.on_hard)
+        self.hard_button.pack(pady=10)
 
-        self.load_game_button = ttk.Button(self.main_frame, text="Load Game", command=self.on_load_game, **button_options)
-        self.load_game_button.grid(row=2, column=0, padx=5, pady=5)
-
-        self.scoreboard_button = ttk.Button(self.main_frame, text="Scoreboard", command=self.on_scoreboard, **button_options)
-        self.scoreboard_button.grid(row=3, column=0, padx=5, pady=5)
-
-        self.easy_button = ttk.Button(self.main_frame, text="Easy", command=self.on_easy, **button_options)
-        self.easy_button.grid(row=4, column=0, padx=5, pady=5)
-
-        self.medium_button = ttk.Button(self.main_frame, text="Medium", command=self.on_medium, **button_options)
-        self.medium_button.grid(row=5, column=0, padx=5, pady=5)
-
-        self.hard_button = ttk.Button(self.main_frame, text="Hard", command=self.on_hard, **button_options)
-        self.hard_button.grid(row=6, column=0, padx=5, pady=5)
-
-    def on_new_game(self):
-        messagebox.showinfo("New Game", "Starting new game...")
-
-    def on_load_game(self):
-        messagebox.showinfo("Load Game", "Loading game...")
-
-    def on_scoreboard(self):
-        messagebox.showinfo("Scoreboard", "Opening scoreboard...")
+        self.cancel_button = ttk.Button(self, text="Back", command=self.destroy)
+        self.cancel_button.pack(pady=10)
 
     def on_easy(self):
-        messagebox.showinfo("Difficulty", "Setting difficulty to Easy")
+        self.parent.on_difficulty("Easy")
+        self.destroy()
 
     def on_medium(self):
-        messagebox.showinfo("Difficulty", "Setting difficulty to Medium")
+        self.parent.on_difficulty("Medium")
+        self.destroy()
 
     def on_hard(self):
-        messagebox.showinfo("Difficulty", "Setting difficulty to Hard")
+        self.parent.on_difficulty("Hard")
+        self.destroy()
+
+class Minesweeper:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Démineur")
+        self.root.resizable(False, False)
+        self.root.geometry(f"400x400")
+        self.load_main_menu()
+
+    def load_main_menu(self):
+        self.clear_window()
+
+        label = tk.Label(self.root, text="Minesweeper", font=("Arial", 24))
+        label.pack(pady=20)
+
+        buttons = [
+            ("New Game", lambda: self.load_difficulty_menu()),
+            ("Load Game", lambda: self.load_game_saved_menu()),
+            ("Scoreboard", lambda: self.load_scoreboard_menu()),
+            ("Exit", lambda: self.root.destroy())
+        ]
+        for text, command in buttons:
+            button = tk.Button(self.root, text=text, font=("Arial", 14), command=command)
+            button.pack(pady=10)
+
+    def load_difficulty_menu(self):
+        self.clear_window()
+        label = tk.Label(self.root, text="Chose Difficulty", font=("Arial", 24))
+        label.pack(pady=20)
+
+        for difficulty in ["Easy", "Medium", "Hard"]:
+            btn = tk.Button(self.root, text=difficulty, font=("Arial", 14), width=10,
+                            command=lambda d=difficulty: d.set())
+            btn.pack(pady=10)
+
+        button = tk.Button(self.root, text="Back", font=("Arial", 14), command=lambda: self.load_main_menu())
+        button.pack(pady=10)
+
+    def load_game_saved_menu(self):
+        self.clear_window()
+        label = tk.Label(self.root, text="Load Game", font=("Arial", 24))
+        label.pack(pady=20)
+
+        button = tk.Button(self.root, text="Back", font=("Arial", 14), command=lambda: self.load_main_menu())
+        button.pack(pady=10)
+
+    def load_scoreboard_menu(self):
+        self.clear_window()
+        label = tk.Label(self.root, text="Best Score", font=("Arial", 24))
+        label.pack(pady=20)
+
+        label = tk.Label(self.root, text="Test : 13m14s", font=("Arial", 24))
+        label.pack(pady=20)
+
+        button = tk.Button(self.root, text="Back", font=("Arial", 14), command=lambda: self.load_main_menu())
+        button.pack(pady=10)
+
+    def clear_window(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
 
 if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+    root = tk.Tk()
+    game = Minesweeper(root)
+    root.mainloop()
