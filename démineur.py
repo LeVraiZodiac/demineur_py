@@ -18,11 +18,20 @@ class Case:
     def toggle_flag(self):
         if not self.is_revealed:
             self.is_flagged = not self.is_flagged
+            self.button.config(text="⚑" if self.is_flagged else "")
+            self.button.config(fg="blue" if self.is_flagged else "black")
 
     def reveal(self):
         if not self.is_flagged:
             self.is_revealed = True
-            return not self.is_mine
+            self.button.config(state="disabled")
+            if self.is_mine:
+                self.button.config(text="*", bg="red")
+                return False
+            else:
+                self.button.config(text=str(self.adjacent_mines) if self.adjacent_mines > 0 else "")
+                self.button.config(bg="light grey")
+                return True
 
 class Grille:
     def __init__(self, rows, cols, mines, seed=None):
@@ -32,7 +41,7 @@ class Grille:
         self.grid = [[Case(row, col) for col in range(cols)] for row in range(rows)]
         self.seed = seed
         if seed is not None:
-            random.seed(seed)  # Utilisation du seed pour reproduire la même grille
+            random.seed(seed)
         self.place_mines()
         self.calculate_adjacent_mines()
 
@@ -76,15 +85,37 @@ class Demineur:
         self.root.title("Démineur")
         self.difficulty = None
         self.grid = None
-        self.previous_start = None
-        self.scores_file = "scores.json"
+        self.rows = 0
+        self.cols = 0
         self.start_time = None
         self.seed = None
         self.create_menu()
 
+    def get_high_scores(self):
+        high_scores = {"Facile": "Aucun", "Moyen": "Aucun", "Difficile": "Aucun"}
+        scores_file = "scores.json"
+        if os.path.exists(scores_file):
+            with open(scores_file, 'r') as f:
+                scores = json.load(f)
+                for score in scores:
+                    if score['victory']:
+                        difficulty = score['difficulty']
+                        time = round(score['time'], 2)
+                        if high_scores[difficulty] == "Aucun" or time < high_scores[difficulty]:
+                            high_scores[difficulty] = time
+        return high_scores
+
     def create_menu(self):
-        """ Affiche le menu principal. """
         self.clear_window()
+        high_scores = self.get_high_scores()
+        label = tk.Label(self.root, text="Meilleurs Scores :", font=("Arial", 14))
+        label.pack(pady=10)
+
+        for difficulty, time in high_scores.items():
+            score_label = f"{difficulty}: {time} sec"
+            label = tk.Label(self.root, text=score_label, font=("Arial", 12))
+            label.pack(pady=2)
+
         label = tk.Label(self.root, text="Choisissez la difficulté :", font=("Arial", 14))
         label.pack(pady=20)
 
@@ -94,16 +125,14 @@ class Demineur:
             btn.pack(pady=5)
 
         btn_saved_games = tk.Button(self.root, text="Parties Sauvegardées", font=("Arial", 12),
-                                    command=self.show_saved_games)
+                                   command=self.show_saved_games)
         btn_saved_games.pack(pady=10)
 
     def set_difficulty(self, difficulty):
-        """ Définit la difficulté et démarre une nouvelle partie. """
         self.difficulty = difficulty
         self.setup_game()
 
     def setup_game(self):
-        """ Initialise la grille de jeu en fonction de la difficulté sélectionnée. """
         if self.difficulty == "Facile":
             rows, cols, mines = 9, 9, 10
         elif self.difficulty == "Moyen":
@@ -111,67 +140,57 @@ class Demineur:
         else:
             rows, cols, mines = 24, 24, 99
 
-        self.seed = random.randint(0, 10000)  # Générer un seed aléatoire pour la grille
+        self.rows = rows
+        self.cols = cols
+        self.seed = random.randint(0, 10000)
         self.grid = Grille(rows, cols, mines, seed=self.seed)
-        self.start_time = time.time()  # Commence le chronométrage de la partie
+        self.start_time = time.time()
         self.create_widgets(rows, cols)
 
     def create_widgets(self, rows, cols):
-        """ Crée les boutons de la grille de jeu pour chaque case. """
         self.clear_window()
+        self.frame = tk.Frame(self.root)
+        self.frame.pack()
+
+        self.canvas = tk.Canvas(self.frame, width=self.cols * 30, height=self.rows * 30)
+        self.scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
+        self.canvas.config(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.inner_frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
+
         for row in range(rows):
             for col in range(cols):
-                btn = tk.Button(self.root, width=2, height=1, command=lambda r=row, c=col: self.click_case(r, c))
+                btn = tk.Button(self.inner_frame, width=2, height=1, command=lambda r=row, c=col: self.click_case(r, c))
                 btn.grid(row=row, column=col)
                 self.grid.grid[row][col].button = btn
                 btn.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
 
+        self.inner_frame.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
     def clear_window(self):
-        """ Efface tous les widgets de la fenêtre pour afficher une nouvelle page. """
         for widget in self.root.winfo_children():
             widget.destroy()
 
     def click_case(self, row, col):
-        """ Gère le clic gauche sur une case pour la révéler. """
         case = self.grid.grid[row][col]
         if case.is_flagged:
             return
-
-        if self.previous_start is None:
-            self.previous_start = (row, col)
-            if case.is_mine:
-                self.grid.grid[row][col].is_mine = False
-
-        if case.reveal():
-            self.update_button(row, col)
-            if case.adjacent_mines == 0:
-                for adj in self.grid.get_adjacent_cases(row, col):
-                    self.update_button(adj.row, adj.col)
+        if self.grid.reveal_case(row, col):
+            if self.check_victory():
+                self.victory()
         else:
             self.game_over()
 
-        if self.check_victory():
-            self.victory()
-
-    def update_button(self, row, col):
-        """ Met à jour l'affichage de la case après l'avoir révélée. """
-        case = self.grid.grid[row][col]
-        btn = case.button
-        if case.is_mine:
-            btn.config(text="*", bg="red")
-        else:
-            btn.config(text=str(case.adjacent_mines) if case.adjacent_mines > 0 else "", bg="light grey")
-        btn.config(state="disabled")
-
     def toggle_flag(self, row, col):
-        """ Gère le clic droit pour placer un drapeau sur une case. """
         case = self.grid.grid[row][col]
         case.toggle_flag()
-        btn = case.button
-        btn.config(text="⚑" if case.is_flagged else "", fg="blue" if case.is_flagged else "black")
 
     def game_over(self):
-        """ Affiche toutes les mines et redirige vers l'écran de défaite. """
         for row in range(self.grid.rows):
             for col in range(self.grid.cols):
                 case = self.grid.grid[row][col]
@@ -180,15 +199,12 @@ class Demineur:
         self.show_defeat_screen()
 
     def check_victory(self):
-        """ Vérifie si le joueur a gagné la partie. """
-        for row in self.grid.grid:
-            for case in row:
-                if not case.is_mine and not case.is_revealed:
-                    return False
-        return True
+        mines_flagged = sum(1 for row in self.grid.grid for case in row if case.is_mine and case.is_flagged)
+        cases_revealed = sum(1 for row in self.grid.grid for case in row if case.is_revealed and not case.is_mine)
+        total_cases = self.grid.rows * self.grid.cols
+        return mines_flagged == self.grid.mines and cases_revealed == total_cases - self.grid.mines
 
     def victory(self):
-        """ Affiche l'écran de victoire et sauvegarde le score. """
         self.clear_window()
         label = tk.Label(self.root, text="Félicitations, vous avez gagné !", font=("Arial", 16))
         label.pack(pady=20)
@@ -196,7 +212,8 @@ class Demineur:
         replay_btn = tk.Button(self.root, text="Rejouer", font=("Arial", 12), command=self.setup_game)
         replay_btn.pack(pady=5)
 
-        main_menu_btn = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 12), command=self.create_menu)
+        main_menu_btn = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 12),
+                                  command=self.create_menu)
         main_menu_btn.pack(pady=5)
 
         end_time = time.time()
@@ -204,7 +221,6 @@ class Demineur:
         self.save_score(True, elapsed_time)
 
     def show_defeat_screen(self):
-        """ Affiche l'écran de défaite et permet de rejouer ou de retourner au menu principal. """
         self.clear_window()
         label = tk.Label(self.root, text="Dommage, vous avez perdu.", font=("Arial", 16))
         label.pack(pady=20)
@@ -220,7 +236,7 @@ class Demineur:
         self.save_score(False, elapsed_time)
 
     def save_score(self, victory, elapsed_time):
-        """ Sauvegarde le score de la partie dans un fichier JSON. """
+        scores_file = "scores.json"
         score_data = {
             "difficulty": self.difficulty,
             "victory": victory,
@@ -229,60 +245,63 @@ class Demineur:
             "timestamp": time.ctime()
         }
 
-        if not os.path.exists(self.scores_file):
-            with open(self.scores_file, 'w') as f:
+        if not os.path.exists(scores_file):
+            with open(scores_file, 'w') as f:
                 json.dump([score_data], f)
         else:
-            with open(self.scores_file, 'r+') as f:
+            with open(scores_file, 'r+') as f:
                 scores = json.load(f)
                 scores.append(score_data)
                 f.seek(0)
                 json.dump(scores, f)
 
     def show_saved_games(self):
-        """ Affiche les parties sauvegardées et permet de rejouer avec un seed spécifique. """
         self.clear_window()
         label = tk.Label(self.root, text="Parties Sauvegardées", font=("Arial", 14))
         label.pack(pady=20)
 
-        if not os.path.exists(self.scores_file):
+        scores_file = "scores.json"
+        if not os.path.exists(scores_file):
             tk.Label(self.root, text="Aucune partie sauvegardée.").pack()
             return
 
-        with open(self.scores_file, 'r') as f:
+        with open(scores_file, 'r') as f:
             scores = json.load(f)
+
+        self.saved_games_frame = tk.Frame(self.root)
+        self.saved_games_frame.pack(fill="both", expand=True)
+
+        self.saved_games_canvas = tk.Canvas(self.saved_games_frame)
+        self.saved_games_canvas.pack(side="left", fill="both", expand=True)
+
+        self.saved_games_scrollbar = tk.Scrollbar(self.saved_games_frame, orient="vertical", command=self.saved_games_canvas.yview)
+        self.saved_games_canvas.config(yscrollcommand=self.saved_games_scrollbar.set)
+
+        self.saved_games_scrollbar.pack(side="right", fill="y")
+
+        self.saved_games_inner_frame = tk.Frame(self.saved_games_canvas)
+        self.saved_games_canvas.create_window((0, 0), window=self.saved_games_inner_frame, anchor="nw")
 
         for i, score in enumerate(scores):
             result = "Victoire" if score['victory'] else "Défaite"
             score_label = f"Partie {i + 1} - Difficulté: {score['difficulty']} - {result} - Temps: {round(score['time'], 2)} sec"
-            tk.Label(self.root, text=score_label).pack()
+            label = tk.Label(self.saved_games_inner_frame, text=score_label, font=("Arial", 12))
+            label.pack(pady=5)
 
-            replay_btn = tk.Button(self.root, text="Rejouer", command=lambda seed=score['seed']: self.replay_game(seed))
-            replay_btn.pack(pady=5)
+            replay_btn = tk.Button(self.saved_games_inner_frame, text="Rejouer", command=lambda seed=score['seed']: self.replay_game(seed))
+            replay_btn.pack(pady=2)
+
+        self.saved_games_inner_frame.update_idletasks()
+        self.saved_games_canvas.config(scrollregion=self.saved_games_canvas.bbox("all"))
 
         back_btn = tk.Button(self.root, text="Retour", command=self.create_menu)
         back_btn.pack(pady=10)
 
-    def get_saved_score_by_seed(self, seed):
-        """ Récupère les informations d'une partie sauvegardée à partir du seed. """
-        if not os.path.exists(self.scores_file):
-            return None
-        with open(self.scores_file, 'r') as f:
-            scores = json.load(f)
-            for score in scores:
-                if score['seed'] == seed:
-                    return score
-        return None
-
     def replay_game(self, seed):
-        """ Rejoue une partie en utilisant un seed spécifique. """
-        self.seed = seed  # Utilisation du seed sauvegardé
-        # Récupérer la difficulté de la partie sauvegardée
-        # Vous pouvez éventuellement récupérer cette information depuis le fichier JSON des scores
+        self.seed = seed
         saved_score = self.get_saved_score_by_seed(seed)
         if saved_score:
             difficulty = saved_score['difficulty']
-            # Initialiser la grille avec la difficulté correspondante
             if difficulty == "Facile":
                 rows, cols, mines = 9, 9, 10
             elif difficulty == "Moyen":
@@ -290,10 +309,22 @@ class Demineur:
             else:
                 rows, cols, mines = 24, 24, 99
 
+            self.rows = rows
+            self.cols = cols
             self.grid = Grille(rows, cols, mines, seed=self.seed)
-            self.start_time = time.time()  # Redémarrer le chronomètre
+            self.start_time = time.time()
             self.create_widgets(rows, cols)
 
+    def get_saved_score_by_seed(self, seed):
+        scores_file = "scores.json"
+        if not os.path.exists(scores_file):
+            return None
+        with open(scores_file, 'r') as f:
+            scores = json.load(f)
+            for score in scores:
+                if score['seed'] == seed:
+                    return score
+        return None
 
 if __name__ == "__main__":
     root = tk.Tk()
