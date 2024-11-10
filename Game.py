@@ -1,4 +1,7 @@
 import random
+import time
+
+from Case import Case
 
 class Difficulty:
     EASY = [9, 9, 10]
@@ -6,20 +9,17 @@ class Difficulty:
     HARD = [30, 16, 99]
 
 class Game:
-    def __init__(self, rows, cols, mines):
+    def __init__(self, rows, cols, mines, difficulty, seed=None):
         self.rows = rows
         self.cols = cols
         self.mines = mines
-        self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
-        self.mine_positions = set()
-        self.calculate_adjacent_mines()
+        self.seed = seed
+        self.difficulty = difficulty
+        self.start_time = None
+        self.grid = [[Case(row, col) for col in range(cols)] for row in range(rows)]
         self.first_position = None
-
-    def is_valid_cell(self, row, col):
-        return 0 <= row < self.rows and 0 <= col < self.cols
-
-    def get_mine_positions(self):
-        return self.mine_positions
+        if seed is not None:
+            random.seed(seed)
 
     def place_mines(self):
         if self.first_position:
@@ -35,36 +35,37 @@ class Game:
         selected_positions = random.sample(possible_positions, self.mines)
 
         for row, col in selected_positions:
-            self.mine_positions.add((row, col))
-            self.grid[row][col] = -1
+            self.grid[row][col].is_mine = True
 
     def calculate_adjacent_mines(self):
-        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-        for row, col in self.mine_positions:
-            for dr, dc in directions:
-                r, c = row + dr, col + dc
-                if 0 <= r < self.rows and 0 <= c < self.cols and self.grid[r][c] != -1:
-                    self.grid[r][c] += 1
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if not self.grid[row][col].is_mine:
+                    adjacent = self.get_adjacent_cases(row, col)
+                    self.grid[row][col].adjacent_mines = sum(1 for cell in adjacent if cell.is_mine)
 
-    def reveal_around_cell(self, row, col):
-        cells_to_reveal = []
-        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-
-        for dr, dc in directions:
-            next_row, next_col = row + dr, col + dc
-            if self.is_valid_cell(next_row, next_col):
-                cells_to_reveal.append((next_row, next_col))
-
-        return cells_to_reveal
+    def get_adjacent_cases(self, row, col):
+        adjacent = []
+        for r in range(max(0, row - 1), min(self.rows, row + 2)):
+            for c in range(max(0, col - 1), min(self.cols, col + 2)):
+                if r != row or c != col:
+                    adjacent.append(self.grid[r][c])
+        return adjacent
 
     def first_move(self, row, col):
         if self.first_position is None:
             self.first_position = (row, col)
+            self.start_time = time.time()
             self.place_mines()
             self.calculate_adjacent_mines()
 
-    def reveal_cell(self, row, col):
+    def reveal_case(self, row, col):
         self.first_move(row, col)
-        if (row, col) in self.mine_positions:
-            return "mine"
-        return self.grid[row][col]
+        case = self.grid[row][col]
+        if case.reveal():
+            if case.adjacent_mines == 0:
+                for adjacent in self.get_adjacent_cases(row, col):
+                    if not adjacent.is_revealed and adjacent.button:
+                        self.reveal_case(adjacent.row, adjacent.col)
+            return True
+        return False
