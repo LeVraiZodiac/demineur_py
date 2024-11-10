@@ -4,18 +4,22 @@ import time
 from Case import Case
 
 class Difficulty:
-    EASY = [9, 9, 10]
-    MEDIUM = [16, 16, 40]
-    HARD = [30, 16, 99]
+    EASY = (9, 9, 10)
+    MEDIUM = (16, 16, 40)
+    HARD = (30, 16, 99)
 
 class Game:
     def __init__(self, rows, cols, mines, difficulty, seed=None):
+        self.is_saved = False
+        self.is_running = True
         self.rows = rows
         self.cols = cols
         self.mines = mines
-        self.seed = seed
         self.difficulty = difficulty
-        self.start_time = None
+        self.flags = mines
+        self.seed = seed
+        self.start_time = 0
+        self.best_time = None
         self.grid = [[Case(row, col) for col in range(cols)] for row in range(rows)]
         self.first_position = None
         if seed is not None:
@@ -65,7 +69,7 @@ class Game:
         if case.reveal():
             if case.adjacent_mines == 0:
                 for adjacent in self.get_adjacent_cases(row, col):
-                    if not adjacent.is_revealed and adjacent.button:
+                    if not adjacent.is_revealed and not adjacent.is_flagged and adjacent.button:
                         self.reveal_case(adjacent.row, adjacent.col)
             return True
         return False

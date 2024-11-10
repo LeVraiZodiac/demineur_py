@@ -20,7 +20,7 @@ class Case:
             self.is_revealed = True
             self.button.config(state="disabled")
             if self.is_mine:
-                self.button.config(text="*", bg="red")
+                self.button.config(text="x", fg="white", bg="black")
                 return False
             else:
                 self.button.config(text=str(self.adjacent_mines) if self.adjacent_mines > 0 else "")
