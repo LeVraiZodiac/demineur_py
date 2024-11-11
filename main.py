@@ -315,7 +315,7 @@ class Minesweeper:
             self.elapsed_time = 0
 
         replay_btn = tk.Button(self.root, text="Rejouer", font=("Arial", 14),
-                               command=lambda: self.replay_game(self.game.seed))
+                               command=lambda: self.replay_game(self.game.seed, self.game.player))
         replay_btn.pack(pady=10)
 
         button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), command=self.load_main_menu)
