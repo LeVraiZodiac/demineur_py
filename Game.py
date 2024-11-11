@@ -18,6 +18,7 @@ class Game:
         self.difficulty = difficulty
         self.flags = mines
         self.seed = seed
+        self.player = None
         self.start_time = 0
         self.best_time = None
         self.grid = [[Case(row, col) for col in range(cols)] for row in range(rows)]

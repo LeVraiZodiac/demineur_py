@@ -102,18 +102,27 @@ class Minesweeper:
             score_label = tk.Label(card_frame, text=score_label_text, font=("Arial", 14))
             score_label.pack(side="top", pady=5)
 
+            score_label_text = f"Joueur: {score['player']}"
+            score_label = tk.Label(card_frame, text=score_label_text, font=("Arial", 14))
+            score_label.pack(side="top", pady=5)
+
             score_label_text = f"Temps: {round(score['best_time'], 2)} sec"
             score_label = tk.Label(card_frame, text=score_label_text, font=("Arial", 14))
             score_label.pack(side="top", pady=5)
 
             if not score['victory']:
                 replay_btn = tk.Button(card_frame, text="Reprendre", font=("Arial", 14),
-                                       command=lambda seed=score['seed']: self.retake_game(seed))
+                                       command=lambda seed=score['seed'], player=score['player']: self.retake_game(seed, player))
                 replay_btn.pack(side="top", pady=5)
 
             replay_btn = tk.Button(card_frame, text="Rejouer", font=("Arial", 14),
-                                   command=lambda seed=score['seed']: self.replay_game(seed))
+                                   command=lambda seed=score['seed'], player=score['player']: self.replay_game(seed, player))
             replay_btn.pack(side="top", pady=5)
+
+            if score['player'] is not None:
+                replay_btn = tk.Button(card_frame, text="Défier", font=("Arial", 14),
+                                       command=lambda seed=score['seed']: self.replay_game(seed, None))
+                replay_btn.pack(side="top", pady=5)
 
         self.saved_games_inner_frame.update_idletasks()
         self.saved_games_canvas.config(scrollregion=self.saved_games_canvas.bbox("all"))
@@ -153,7 +162,16 @@ class Minesweeper:
             for difficulty, score in best_scores.items():
                 if score:
                     result = "Victoire" if score['victory'] else "Défaite"
-                    score_text = f"{difficulties_names[difficulty]} - {result} - Temps : {round(score['best_time'], 2)} sec"
+
+                    score_text = f"{difficulties_names[difficulty]} - {result}"
+                    score_label = tk.Label(self.root, text=score_text, font=("Arial", 14))
+                    score_label.pack(pady=5)
+
+                    score_text = f"Joueur : {score['player']}"
+                    score_label = tk.Label(self.root, text=score_text, font=("Arial", 14))
+                    score_label.pack(pady=5)
+
+                    score_text = f"Temps : {round(score['best_time'], 2)} sec"
                     score_label = tk.Label(self.root, text=score_text, font=("Arial", 14))
                     score_label.pack(pady=5)
                 else:
@@ -232,17 +250,39 @@ class Minesweeper:
 
     def victory(self):
         self.game.is_running = False
-        self.save_game(True)
-
         self.clear_window()
         self.timer_label = None
+
         label = tk.Label(self.root, text="Félicitations, vous avez gagné !", font=("Arial", 24))
         label.pack(pady=20)
 
         formatted_time = round(self.elapsed_time, 2)
         timer_label = tk.Label(self.root, text=f"Votre Temps: {formatted_time} sec", font=("Arial", 14))
         timer_label.pack(pady=20)
-        self.elapsed_time = 0
+
+        if self.game.player is None:
+            popup = tk.Toplevel(self.root)
+            popup.title("Entrez votre pseudo")
+            popup.geometry("300x200")
+            popup.resizable(False, False)
+
+            popup_label = tk.Label(popup, text="Entrez votre pseudo :", font=("Arial", 14))
+            popup_label.pack(pady=10)
+
+            pseudo_entry = tk.Entry(popup, font=("Arial", 14))
+            pseudo_entry.pack(pady=10)
+
+            def save_pseudo():
+                self.game.player = pseudo_entry.get()
+                popup.destroy()
+                self.save_game(True)
+                self.elapsed_time = 0
+
+            save_btn = tk.Button(popup, text="Enregistrer", font=("Arial", 14), command=save_pseudo)
+            save_btn.pack(pady=10)
+        else:
+            self.save_game(True)
+            self.elapsed_time = 0
 
         replay_btn = tk.Button(self.root, text="Rejouer", font=("Arial", 14),
                                command=lambda: self.replay_game(self.game.seed))
@@ -274,11 +314,11 @@ class Minesweeper:
         self.elapsed_time = 0
 
         replay_btn = tk.Button(self.root, text="Reprendre", font=("Arial", 14),
-                               command=lambda: self.retake_game(self.game.seed))
+                               command=lambda: self.retake_game(self.game.seed, self.game.player))
         replay_btn.pack(pady=5)
 
         replay_btn = tk.Button(self.root, text="Rejouer", font=("Arial", 14),
-                               command=lambda: self.replay_game(self.game.seed))
+                               command=lambda: self.replay_game(self.game.seed, self.game.player))
         replay_btn.pack(pady=5)
 
         button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), command=self.load_main_menu)
@@ -301,6 +341,7 @@ class Minesweeper:
 
         score_data = {
             "seed": self.game.seed,
+            "player": self.game.player,
             "time": self.elapsed_time,
             "difficulty": self.game.difficulty,
             "first_position": self.game.first_position,
@@ -322,7 +363,7 @@ class Minesweeper:
                     scores = []
 
                 for i, score in enumerate(scores):
-                    if score['seed'] == self.game.seed:
+                    if score['seed'] == self.game.seed and (score['player'] == self.game.player or score['player'] is None):
                         if victory:
                             score_data["victory"] = True
                             if score['victory']:
@@ -342,14 +383,27 @@ class Minesweeper:
                         scores[i] = score_data
                         break
                 else:
+                    score_data["victory"] = victory
+                    score_data["best_time"] = self.elapsed_time
                     scores.append(score_data)
 
                 f.seek(0)
                 json.dump(scores, f)
                 f.truncate()
 
-    def replay_game(self, seed):
-        saved_score = self.get_saved_score_by_seed(seed)
+    def challenge_game(self, seed, player):
+        saved_score = self.get_saved_score_by_seed(seed, player)
+        if saved_score:
+            difficulty = saved_score['difficulty']
+            rows, cols, mines = difficulty
+
+            self.game = Game(rows, cols, mines, difficulty, seed=seed)
+            self.game.first_position = saved_score['first_position']
+            self.game.start_time = time.time()
+            self.load_grid()
+
+    def replay_game(self, seed, player):
+        saved_score = self.get_saved_score_by_seed(seed, player)
         if saved_score:
             difficulty = saved_score['difficulty']
             rows, cols, mines = difficulty
@@ -357,6 +411,7 @@ class Minesweeper:
             self.game = Game(rows, cols, mines, difficulty, seed=seed)
             self.game.first_position = saved_score['first_position']
             self.game.is_saved = True
+            self.game.player = saved_score['player']
             self.game.start_time = time.time()
             self.game.best_time = saved_score['best_time']
             self.load_grid()
@@ -369,8 +424,8 @@ class Minesweeper:
             r, c = self.game.first_position
             self.click_case(r, c)
 
-    def retake_game(self, seed):
-        saved_score = self.get_saved_score_by_seed(seed)
+    def retake_game(self, seed, player):
+        saved_score = self.get_saved_score_by_seed(seed, player)
         if saved_score:
             difficulty = saved_score['difficulty']
             rows, cols, mines = difficulty
@@ -378,6 +433,7 @@ class Minesweeper:
             self.game = Game(rows, cols, mines, difficulty, seed=seed)
             self.game.first_position = saved_score['first_position']
             self.game.is_saved = True
+            self.game.player = saved_score['player']
             self.game.start_time = time.time() - saved_score['time']
             self.game.best_time = saved_score['best_time']
             self.load_grid()
@@ -400,14 +456,14 @@ class Minesweeper:
                         case.toggle_flag()
                         self.game.flags -= 1
 
-    def get_saved_score_by_seed(self, seed):
+    def get_saved_score_by_seed(self, seed, player):
         scores_file = "scores.json"
         if not os.path.exists(scores_file):
             return None
         with open(scores_file, 'r') as f:
             scores = json.load(f)
             for score in scores:
-                if score['seed'] == seed:
+                if score['seed'] == seed and (score['player'] == player or score['player'] is None):
                     return score
         return None
 
