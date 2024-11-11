@@ -10,7 +10,7 @@ class Minesweeper:
     def __init__(self, root):
         self.root = root
         self.root.title("Démineur")
-        self.root.resizable(False, False)
+        self.root.geometry("800x800")
         self.game = None
         self.timer_label = None
         self.elapsed_time = 0
@@ -67,6 +67,15 @@ class Minesweeper:
         with open(scores_file, 'r') as f:
             scores = json.load(f)
 
+        label = tk.Label(self.root, text="Rechercher par seed...", font=("Arial", 14))
+        label.pack(pady=5)
+        search_var = tk.StringVar()
+        search_entry = tk.Entry(self.root, textvariable=search_var, font=("Arial", 14))
+        search_entry.pack(pady=5)
+
+        search_var.trace("w",
+                         lambda name, index, mode, sv=search_var: self.update_saved_games_display(scores, sv.get()))
+
         self.saved_games_frame = tk.Frame(self.root)
         self.saved_games_frame.pack(fill="both", expand=True)
 
@@ -81,20 +90,39 @@ class Minesweeper:
         self.saved_games_inner_frame = tk.Frame(self.saved_games_canvas)
         self.saved_games_canvas.create_window((0, 0), window=self.saved_games_inner_frame, anchor="nw")
 
+        self.update_saved_games_display(scores, "")
+
+        button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), command=self.load_main_menu)
+        button.pack(pady=10)
+
+    def update_saved_games_display(self, scores, search_text):
+        for widget in self.saved_games_inner_frame.winfo_children():
+            widget.destroy()
+
         difficulties_names = {
             Difficulty.EASY: "Facile",
             Difficulty.MEDIUM: "Moyen",
             Difficulty.HARD: "Difficile"
         }
 
+        row = 0
+        column = 1  # Commence à 1 pour laisser la première colonne vide
+
+        # Configure trois colonnes principales au centre et deux colonnes vides pour le centrage
+        for col in range(5):
+            self.saved_games_inner_frame.grid_columnconfigure(col, weight=1)
+
         for i, score in enumerate(scores):
+            if search_text.lower() not in str(score['seed']).lower():
+                continue
+
             card_frame = tk.Frame(self.saved_games_inner_frame, relief="raised", borderwidth=2, padx=10, pady=10)
-            card_frame.pack(fill="x", pady=10)
+            card_frame.grid(row=row, column=column, padx=10, pady=10, sticky="nsew")
 
             difficulty = tuple(score['difficulty'])
             result = "Victoire" if score['victory'] else "Défaite"
 
-            score_label_text = f"Partie {i + 1} - Seed: {score['seed']}"
+            score_label_text = f"Seed: {score['seed']}"
             score_label = tk.Label(card_frame, text=score_label_text, font=("Arial", 14))
             score_label.pack(side="top", pady=5)
 
@@ -121,14 +149,16 @@ class Minesweeper:
 
             if score['player'] is not None:
                 replay_btn = tk.Button(card_frame, text="Défier", font=("Arial", 14),
-                                       command=lambda seed=score['seed']: self.replay_game(seed, None))
+                                       command=lambda seed=score['seed'], player=score['player']: self.challenge_game(seed, player))
                 replay_btn.pack(side="top", pady=5)
+
+            column += 1
+            if column > 3:
+                column = 1
+                row += 1
 
         self.saved_games_inner_frame.update_idletasks()
         self.saved_games_canvas.config(scrollregion=self.saved_games_canvas.bbox("all"))
-
-        button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), command=self.load_main_menu)
-        button.pack(pady=10)
 
     def load_scoreboard_menu(self):
         self.clear_window()
@@ -202,7 +232,7 @@ class Minesweeper:
         rows, cols, mines = self.game.difficulty
         for row in range(rows):
             for col in range(cols):
-                btn = tk.Button(self.frame, width=4, height=3, command=lambda r=row, c=col: self.click_case(r, c), font=("Arial", 14))
+                btn = tk.Button(self.frame, width=4, height=3, command=lambda r=row, c=col: self.click_case(r, c), font=("Arial", 14), bg="#9c9c9c")
                 btn.grid(row=row, column=col)
                 self.game.grid[row][col].button = btn
                 btn.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
@@ -401,6 +431,14 @@ class Minesweeper:
             self.game.first_position = saved_score['first_position']
             self.game.start_time = time.time()
             self.load_grid()
+
+            for r in range(len(saved_score['grid'])):
+                for c in range(len(saved_score['grid'][r])):
+                    self.game.grid[r][c].is_mine = saved_score['grid'][r][c]["is_mine"]
+                    self.game.grid[r][c].adjacent_mines = saved_score['grid'][r][c]["adjacent_mines"]
+
+            r, c = self.game.first_position
+            self.click_case(r, c)
 
     def replay_game(self, seed, player):
         saved_score = self.get_saved_score_by_seed(seed, player)
