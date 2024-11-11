@@ -3,6 +3,7 @@ import random
 import json
 import os
 import time
+from PIL import Image, ImageTk
 
 from Game import Game, Difficulty
 
@@ -10,7 +11,8 @@ class Minesweeper:
     def __init__(self, root):
         self.root = root
         self.root.title("Démineur")
-        self.root.geometry("800x800")
+        self.root.geometry(f"{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}")
+        self.root.resizable(False, False)
         self.game = None
         self.timer_label = None
         self.elapsed_time = 0
@@ -19,8 +21,42 @@ class Minesweeper:
     def load_main_menu(self):
         self.clear_window()
 
-        label = tk.Label(self.root, text="Démineur", font=("Arial", 24))
+        canvas = tk.Canvas(self.root, width=1920, height=1080)
+        canvas.pack(fill="both", expand=True)
+
+        try:
+            background_image = Image.open("ressources/images/background.png")
+
+            background_image.resize((1920, 1080))
+
+            background_image_tk = ImageTk.PhotoImage(background_image)
+            self.background_image = background_image_tk
+
+            canvas.create_image(0, 0, image=background_image_tk, anchor="nw")
+        except:
+            canvas.configure(bg="#f0f0f0")
+
+        frame = tk.Frame(canvas, bg='#ffffff')
+        frame.place(relx=0.5, rely=0.3, anchor="center", width=800, height=600)
+
+        label = tk.Label(frame,
+                         text="Démineur",
+                         font=("Arial", 96, "bold"),
+                         bg='#ffffff',
+                         fg='#19a4d2',
+                         padx=20,
+                         pady=10)
         label.pack(pady=20)
+
+        button_style = {
+            'font': ("Arial", 32),
+            'bg': '#19a4d2',
+            'fg': 'white',
+            'padx': 20,
+            'pady': 5,
+            'relief': 'raised',
+            'cursor': 'hand2'
+        }
 
         buttons = [
             ("Nouvelle partie", self.load_difficulty_menu),
@@ -30,12 +66,36 @@ class Minesweeper:
         ]
 
         for text, command in buttons:
-            button = tk.Button(self.root, text=text, font=("Arial", 14), command=command)
+            button = tk.Button(frame, text=text, command=command, **button_style, bd=0, highlightthickness=0)
             button.pack(pady=10)
+
+            button.bind('<Enter>', lambda e, btn=button: btn.configure(bg='#d7b899'))
+            button.bind('<Leave>', lambda e, btn=button: btn.configure(bg='#19a4d2'))
+
+        self.root.update_idletasks()
 
     def load_difficulty_menu(self):
         self.clear_window()
-        label = tk.Label(self.root, text="Choisir la difficulté", font=("Arial", 24))
+
+        canvas = tk.Canvas(self.root, width=1920, height=1080)
+        canvas.pack(fill="both", expand=True)
+
+        try:
+            background_image = Image.open("ressources/images/background.png")
+
+            background_image.resize((1920, 1080))
+
+            background_image_tk = ImageTk.PhotoImage(background_image)
+            self.background_image = background_image_tk
+
+            canvas.create_image(0, 0, image=background_image_tk, anchor="nw")
+        except:
+            canvas.configure(bg="#f0f0f0")
+
+        frame = tk.Frame(canvas, bg='#ffffff')
+        frame.place(relx=0.5, rely=0.3, anchor="center", width=900, height=600)
+
+        label = tk.Label(frame, text="Choisir la difficulté", font=("Arial", 64, "bold"), fg='#19a4d2', bg='#ffffff',)
         label.pack(pady=20)
 
         difficulties = [
@@ -44,11 +104,11 @@ class Minesweeper:
             ("Difficile", Difficulty.HARD)
         ]
         for text, difficulty in difficulties:
-            btn = tk.Button(self.root, text=text, font=("Arial", 14), width=10,
-                            command=lambda d=difficulty: self.set_game(d))
+            btn = tk.Button(frame, text=text, font=("Arial", 32),
+                            command=lambda d=difficulty: self.set_game(d), bg='#19a4d2', fg="#ffffff", bd=0, highlightthickness=0)
             btn.pack(pady=10)
 
-        button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), command=self.load_main_menu)
+        button = tk.Button(frame, text="Retour au Menu Principal", font=("Arial", 32), bg='#19a4d2', fg="#ffffff",  bd=0, highlightthickness=0, command=self.load_main_menu)
         button.pack(pady=10)
 
     def load_saved_games_menu(self):
@@ -78,6 +138,7 @@ class Minesweeper:
 
         self.saved_games_frame = tk.Frame(self.root)
         self.saved_games_frame.pack(fill="both", expand=True)
+        self.saved_games_frame.place(relx=0.5, rely=0.45, anchor="center", width=1080, height=800)
 
         self.saved_games_canvas = tk.Canvas(self.saved_games_frame)
         self.saved_games_canvas.pack(side="left", fill="both", expand=True)
@@ -106,9 +167,8 @@ class Minesweeper:
         }
 
         row = 0
-        column = 1  # Commence à 1 pour laisser la première colonne vide
+        column = 1
 
-        # Configure trois colonnes principales au centre et deux colonnes vides pour le centrage
         for col in range(5):
             self.saved_games_inner_frame.grid_columnconfigure(col, weight=1)
 
@@ -153,7 +213,7 @@ class Minesweeper:
                 replay_btn.pack(side="top", pady=5)
 
             column += 1
-            if column > 3:
+            if column > 4:
                 column = 1
                 row += 1
 
@@ -222,20 +282,38 @@ class Minesweeper:
     def load_grid(self):
         self.clear_window()
 
+        self.main_frame = tk.Frame(self.root)
+        self.main_frame.place(relx=0.5, rely=0.5, anchor="center", height=980, width=980)
+
         if not self.timer_label:
-            self.timer_label = tk.Label(self.root, text=f"Temps: 0 sec | ⚑ {self.game.flags}", font=("Arial", 14))
+            self.timer_label = tk.Label(self.main_frame, text=f"Temps: 0 sec | ⚑ {self.game.flags}", font=("Arial", 14))
             self.timer_label.pack(pady=10)
 
-        self.frame = tk.Frame(self.root)
-        self.frame.pack()
+        self.canvas = tk.Canvas(self.main_frame)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+
+        self.scrollbar_y = tk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollbar_y.pack(side=tk.RIGHT, fill="y")
+
+        self.canvas.configure(yscrollcommand=self.scrollbar_y.set)
 
         rows, cols, mines = self.game.difficulty
+
+        self.frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.frame, anchor="center")
+
         for row in range(rows):
             for col in range(cols):
-                btn = tk.Button(self.frame, width=4, height=3, command=lambda r=row, c=col: self.click_case(r, c), font=("Arial", 14), bg="#9c9c9c")
+                bg_color = "#79D021" if (row + col) % 2 == 0 else "#A1DF50"
+                btn = tk.Button(self.frame, width=4, height=3, command=lambda r=row, c=col: self.click_case(r, c),
+                                font=("Arial", 14), bg=bg_color, bd=0, highlightthickness=0)
                 btn.grid(row=row, column=col)
                 self.game.grid[row][col].button = btn
                 btn.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
+
+        self.frame.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
         self.update_timer()
 
