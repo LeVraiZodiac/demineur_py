@@ -31,10 +31,6 @@ class Minesweeper:
         self.clear_window()
         self.set_background("image/background.jpg")
 
-        # Afficher la résolution de l'écran
-        print(self.root.winfo_screenwidth())
-        print(self.root.winfo_screenheight())
-
         # Label "Démineur" avec un effet bois
         self.label = tk.Label(
             self.root, text="Démineur", font=("Impact", 44), fg="white", bg="#D2691E",
@@ -341,7 +337,7 @@ class Minesweeper:
                 relief="raised",
                 bd=5
             )
-            self.timer_label.pack(pady=40)
+            self.timer_label.pack(pady=10)
 
         # Création de la frame avec un style bois
         self.frame = tk.Frame(
