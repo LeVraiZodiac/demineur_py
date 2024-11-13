@@ -339,12 +339,13 @@ class Minesweeper:
             self.game_over()
 
     def toggle_flag(self, row, col):
-        if self.game.grid[row][col].is_flagged:
-            self.game.grid[row][col].toggle_flag()
-            self.game.flags += 1
-        else:
-            if self.game.flags > 0:
-                if self.game.grid[row][col].toggle_flag():
+        if not self.game.grid[row][col].is_revealed:
+            if self.game.grid[row][col].is_flagged:
+                self.game.grid[row][col].toggle_flag()
+                self.game.flags += 1
+            else:
+                if self.game.flags > 0:
+                    self.game.grid[row][col].toggle_flag()
                     self.game.flags -= 1
 
         if self.check_victory():
