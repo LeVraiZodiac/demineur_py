@@ -131,7 +131,7 @@ class Minesweeper:
                     back_button = tk.Button(
                         difficulty_frame, text="Défier", font=("Arial", 14), bg="#8B4513", fg="white",
                         relief="raised", bd=5, command=lambda seed=score['seed'], player=score['player']:
-                        self.challenge_game(score['seed'], score['player']))
+                        self.challenge_game(seed, player))
                     back_button.pack(pady=2)
                 else:
                     no_win_text = "Encore aucune victoire dans cette difficulté"
@@ -336,7 +336,7 @@ class Minesweeper:
         if not self.timer_label:
             self.timer_label = tk.Label(
                 self.root,
-                text=f"Time: 0 sec | ⚑ {self.game.flags}",
+                text=f"Seed: {self.game.seed} | Time: 0 sec | ⚑ {self.game.flags}",
                 font=("Impact", 24),
                 bg="gray",
                 fg="white",
@@ -380,7 +380,7 @@ class Minesweeper:
         if self.timer_label and self.game and self.game.start_time > 0 and self.game.is_running:
             self.elapsed_time = time.time() - self.game.start_time
             formatted_time = round(self.elapsed_time, 2)
-            self.timer_label.config(text=f"Time: {formatted_time} sec | ⚑ {self.game.flags}")
+            self.timer_label.config(text=f"Seed: {self.game.seed} | Time: {formatted_time} sec | ⚑ {self.game.flags}")
         self.root.after(100, self.update_timer)
 
     def clear_window(self):
