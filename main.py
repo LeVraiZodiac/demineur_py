@@ -31,26 +31,33 @@ class Minesweeper:
         self.clear_window()
         self.set_background("image\\background.jpg")
 
-        # Label "Démineur" avec des effets visuels
-        self.label = tk.Label(self.root, text="Démineur", font=("Impact", 44),
-                              fg="white", bg="orange", relief="raised", bd=25)
-        self.label.pack(pady=50)  # Diminution de l'espacement autour du label "Démineur" pour faire de la place
+        # Label "Démineur" avec un effet bois
+        self.label = tk.Label(
+            self.root, text="Démineur", font=("Impact", 44), fg="white", bg="#D2691E",
+            relief="raised", bd=25
+        )
+        self.label.pack(pady=50)
 
+        # Bouton "Nouvelle partie" avec un style bois
+        new_game_button = tk.Button(
+            self.root, text="Nouvelle partie", font=("Impact", 18), bg="#8B4513", fg="white",
+            relief="raised", bd=5, command=self.load_difficulty_menu
+        )
+        new_game_button.pack(pady=(100, 20))
 
-        # Créer le bouton "Nouvelle partie"
-        new_game_button = tk.Button(self.root, text="Nouvelle partie", font=("Impact", 18), bg="brown", fg="white",
-                                    command=self.load_difficulty_menu)
-        new_game_button.pack(pady=(100, 20))  # espace de 5 pixels en haut et 20 pixels en bas du bouton
+        # Bouton "Parties Sauvegardées" avec style bois
+        saved_games_button = tk.Button(
+            self.root, text="Parties Sauvegardées", font=("Impact", 18), bg="#8B4513", fg="white",
+            relief="raised", bd=5, command=self.load_saved_games_menu
+        )
+        saved_games_button.pack(pady=(5, 20))
 
-        # Créer le bouton "Parties Sauvegardées"
-        saved_games_button = tk.Button(self.root, text="Parties Sauvegardées", font=("Impact", 18), bg="brown",
-                                       fg="white", command=self.load_saved_games_menu)
-        saved_games_button.pack(pady=(5, 20))  # espace de 5 pixels en haut et 20 pixels en bas du bouton
-
-        # Créer le bouton "Fermer"
-        close_button = tk.Button(self.root, text="Fermer", font=("Impact", 18), bg="brown", fg="white",
-                                 command=self.root.destroy)
-        close_button.pack(pady=(5, 100))  # espace de 5 pixels en haut et 20 pixels en bas du bouton
+        # Bouton "Fermer" avec style bois
+        close_button = tk.Button(
+            self.root, text="Fermer", font=("Impact", 18), bg="#8B4513", fg="white",
+            relief="raised", bd=5, command=self.root.destroy
+        )
+        close_button.pack(pady=(5, 100))
 
         # Charger les scores directement dans le menu principal
         self.display_scores()
@@ -128,47 +135,62 @@ class Minesweeper:
         self.clear_window()
         self.set_background("image\\background.jpg")
 
-        # Label de la difficulté
-        label = tk.Label(self.root, text="Choisir la difficulté", font=("Impact", 44), bg="orange", fg="white",
-                         relief="raised", bd=25)
-        label.pack(pady=70)  # Espacement autour du label pour le séparer des boutons
+        # Label "Choisir la difficulté" avec effet bois
+        label = tk.Label(
+            self.root, text="Choisir la difficulté", font=("Impact", 44), bg="#D2691E", fg="white",
+            relief="raised", bd=25
+        )
+        label.pack(pady=70)  # Espacement pour séparer le label des boutons
 
-        # Créer le bouton "Facile"
-        btn_easy = tk.Button(self.root, text="Facile", font=("Impact", 18), bg="brown", fg="white", width=20,
-                             height=2, relief="raised", bd=5, command=lambda: self.set_game(Difficulty.EASY))
-        btn_easy.pack(pady=(70, 20))  # Espacement au-dessus de 10 et en dessous de 20
+        # Bouton "Facile" avec style bois
+        btn_easy = tk.Button(
+            self.root, text="Facile", font=("Impact", 18), bg="#8B4513", fg="white", width=20,
+            height=2, relief="raised", bd=5, command=lambda: self.set_game(Difficulty.EASY)
+        )
+        btn_easy.pack(pady=(70, 20))
 
-        # Créer le bouton "Moyen"
-        btn_medium = tk.Button(self.root, text="Moyen", font=("Impact", 18), bg="brown", fg="white", width=20,
-                               height=2, relief="raised", bd=5, command=lambda: self.set_game(Difficulty.MEDIUM))
-        btn_medium.pack(pady=(10, 20))  # Espacement au-dessus de 10 et en dessous de 20
+        # Bouton "Moyen" avec style bois
+        btn_medium = tk.Button(
+            self.root, text="Moyen", font=("Impact", 18), bg="#8B4513", fg="white", width=20,
+            height=2, relief="raised", bd=5, command=lambda: self.set_game(Difficulty.MEDIUM)
+        )
+        btn_medium.pack(pady=(10, 20))
 
-        # Créer le bouton "Difficile"
-        btn_hard = tk.Button(self.root, text="Difficile", font=("Impact", 18), bg="brown", fg="white", width=20,
-                             height=2, relief="raised", bd=5, command=lambda: self.set_game(Difficulty.HARD))
-        btn_hard.pack(pady=(10, 70))  # Espacement au-dessus de 10 et en dessous de 20
+        # Bouton "Difficile" avec style bois
+        btn_hard = tk.Button(
+            self.root, text="Difficile", font=("Impact", 18), bg="#8B4513", fg="white", width=20,
+            height=2, relief="raised", bd=5, command=lambda: self.set_game(Difficulty.HARD)
+        )
+        btn_hard.pack(pady=(10, 70))
 
-        # Créer le bouton de retour au menu principal
-        back_button = tk.Button(self.root, text="Retour au Menu Principal", font=("Impact", 14), bg="brown", fg="white",
-                                command=self.load_main_menu)
-        back_button.pack(pady=20)  # Espacement sous le bouton de retour
+        # Bouton de retour au menu principal avec style bois
+        back_button = tk.Button(
+            self.root, text="Retour au Menu Principal", font=("Impact", 14), bg="#8B4513", fg="white",
+            relief="raised", bd=5, command=self.load_main_menu
+        )
+        back_button.pack(pady=20)
 
     def load_saved_games_menu(self):
         self.clear_window()
         self.set_background("image\\background.jpg")
 
-        # Label principal pour le titre du menu
-        label = tk.Label(self.root, text="Parties Sauvegardées", font=("Impact", 44), bg="orange", fg="white",
-                         relief="raised", bd=25)
+        # Titre du menu avec effet bois
+        label = tk.Label(
+            self.root, text="Parties Sauvegardées", font=("Impact", 44), bg="#D2691E", fg="white",
+            relief="raised", bd=25
+        )
         label.pack(pady=30)
 
         # Vérification de l'existence de sauvegardes
         scores_file = "scores.json"
         if not os.path.exists(scores_file) or os.path.getsize(scores_file) == 0:
-            tk.Label(self.root, text="Aucune partie sauvegardée.", font=("Arial", 14), bg="orange", fg="white").pack(
-                pady=10)
-            button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="brown", fg="white",
-                               relief="raised", bd=5, command=self.load_main_menu)
+            tk.Label(self.root, text="Aucune partie sauvegardée.", font=("Arial", 14), bg="#D2691E", fg="white").pack(
+                pady=10
+            )
+            button = tk.Button(
+                self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="#8B4513", fg="white",
+                relief="raised", bd=5, command=self.load_main_menu
+            )
             button.pack(pady=20)
             return
 
@@ -176,51 +198,49 @@ class Minesweeper:
         with open(scores_file, 'r') as f:
             scores = json.load(f)
 
-        # Recherche par seed
-        search_frame = tk.Frame(self.root, bg="gray", relief="raised", bd=5, padx=1, pady=5)
+        # Recherche par seed avec un cadre couleur bois
+        search_frame = tk.Frame(self.root, bg="#A0522D", relief="sunken", bd=5, padx=5, pady=5)
         search_frame.pack(pady=1, padx=600, fill="x")
 
-        # Label pour la recherche
-        search_label = tk.Label(search_frame, text="Rechercher par seed :", font=("Arial", 14), bg="gray", fg="white")
+        search_label = tk.Label(search_frame, text="Rechercher par seed :", font=("Arial", 14), bg="#A0522D",
+                                fg="white")
         search_label.pack(side="left")
 
-        # Champ de saisie pour la recherche
         search_var = tk.StringVar()
         search_entry = tk.Entry(search_frame, textvariable=search_var, font=("Arial", 14))
         search_entry.pack(side="left", padx=10, fill="x", expand=True)
-
-        # Mettre à jour l'affichage des sauvegardes en fonction de la recherche
         search_var.trace("w",
                          lambda name, index, mode, sv=search_var: self.update_saved_games_display(scores, sv.get()))
 
-        # Frame pour les parties sauvegardées avec style
-        self.saved_games_frame = tk.Frame(self.root, bg="gray", relief="raised", bd=25, padx=20, pady=20)
+        # Cadre principal pour les parties sauvegardées avec effet bois
+        self.saved_games_frame = tk.Frame(self.root, bg="#8B4513", relief="raised", bd=25, padx=20, pady=20)
         self.saved_games_frame.pack(fill="both", expand=True, pady=20, padx=20)
 
         # Canvas pour les parties sauvegardées
-        self.saved_games_canvas = tk.Canvas(self.saved_games_frame, bg="gray", highlightthickness=0)
+        self.saved_games_canvas = tk.Canvas(self.saved_games_frame, bg="#D2B48C", highlightthickness=0)
         self.saved_games_canvas.pack(side="left", fill="both", expand=True)
 
-        # Scrollbar pour les parties sauvegardées (désactivée si inutile)
-        self.saved_games_scrollbar = tk.Scrollbar(self.saved_games_frame, orient="vertical",
-                                                  command=self.saved_games_canvas.yview)
+        # Scrollbar (cachée si inutile)
+        self.saved_games_scrollbar = tk.Scrollbar(
+            self.saved_games_frame, orient="vertical", command=self.saved_games_canvas.yview
+        )
         self.saved_games_canvas.config(yscrollcommand=self.saved_games_scrollbar.set)
-
-        # Masquer la scrollbar si elle n'est pas nécessaire
         self.saved_games_canvas.bind("<Configure>", lambda e: self.saved_games_scrollbar.pack_forget() if
-        self.saved_games_canvas.bbox("all")[3] <= e.height else self.saved_games_scrollbar.pack(side="right", fill="y"))
+        self.saved_games_canvas.bbox("all")[3] <= e.height else
+        self.saved_games_scrollbar.pack(side="right", fill="y"))
 
-        # Inner frame pour l'affichage du contenu des sauvegardes
-        self.saved_games_inner_frame = tk.Frame(self.saved_games_canvas, bg="gray")
-        self.saved_games_canvas.create_window((0, 0), window=self.saved_games_inner_frame,
-                                              anchor="n")  # Centrage vertical
+        # Inner frame pour l'affichage des sauvegardes
+        self.saved_games_inner_frame = tk.Frame(self.saved_games_canvas, bg="#D2B48C")
+        self.saved_games_canvas.create_window((0, 0), window=self.saved_games_inner_frame, anchor="n")
 
         # Affichage initial des parties sauvegardées
         self.update_saved_games_display(scores, "")
 
-        # Bouton pour revenir au menu principal
-        back_button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="brown", fg="white",
-                                relief="raised", bd=5, command=self.load_main_menu)
+        # Bouton pour retourner au menu principal avec style bois
+        back_button = tk.Button(
+            self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="#8B4513", fg="white",
+            relief="raised", bd=5, command=self.load_main_menu
+        )
         back_button.pack(pady=20)
 
     def update_saved_games_display(self, scores, search_text):
@@ -304,23 +324,48 @@ class Minesweeper:
         self.clear_window()
         self.set_background("image\\background.jpg")
 
+        # Création de l'étiquette de minuterie
         if not self.timer_label:
-            self.timer_label = tk.Label(self.root, text=f"Temps: 0 sec | ⚑ {self.game.flags}", font=("Impact", 24), bg="gray", fg="white",
-                         relief="raised", bd=5)
+            self.timer_label = tk.Label(
+                self.root,
+                text=f"Temps: 0 sec | ⚑ {self.game.flags}",
+                font=("Impact", 24),
+                bg="gray",
+                fg="white",
+                relief="raised",
+                bd=5
+            )
             self.timer_label.pack(pady=60)
 
-        self.frame = tk.Frame(self.root, bg="orange")
-        self.frame.pack()
+        # Création de la frame avec un style bois
+        self.frame = tk.Frame(
+            self.root,
+            bg="#8B4513",  # Couleur marron clair pour un effet bois
+            bd=10,  # Bordure de 10 pixels
+            relief="ridge"  # Bordure style crête pour un effet sculpté
+        )
+        self.frame.pack(pady=20)  # Espacement vertical pour bien encadrer la grille
 
+        # Création de la grille de boutons
         rows, cols, mines = self.game.difficulty
         for row in range(rows):
             for col in range(cols):
-                btn = tk.Button(self.frame, width=2, height=1, command=lambda r=row, c=col: self.click_case(r, c),
-                                font=("Arial", 14), bg="brown", fg="white")
-                btn.grid(row=row, column=col)
+                btn = tk.Button(
+                    self.frame,
+                    width=2,
+                    height=1,
+                    command=lambda r=row, c=col: self.click_case(r, c),
+                    font=("Arial", 14),
+                    bg="#D2B48C",  # Couleur sable clair pour les boutons, rappelant du bois clair
+                    fg="white",  # Texte blanc
+                    relief="raised",  # Style surélevé pour l'effet de relief
+                    bd=3  # Bordure légère pour une touche de profondeur
+                )
+                btn.grid(row=row, column=col, padx=1, pady=1)  # Espacement entre les boutons pour simuler des planches
                 self.game.grid[row][col].button = btn
                 btn.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
 
+        # Démarre le minuteur
         self.update_timer()
 
     def update_timer(self):
@@ -346,13 +391,14 @@ class Minesweeper:
             self.game_over()
 
     def toggle_flag(self, row, col):
-        if self.game.grid[row][col].is_flagged:
-            self.game.grid[row][col].toggle_flag()
-            self.game.flags += 1
-        else:
-            if self.game.flags > 0:
+        if not self.game.grid[row][col].is_revealed:
+            if self.game.grid[row][col].is_flagged:
                 self.game.grid[row][col].toggle_flag()
-                self.game.flags -= 1
+                self.game.flags += 1
+            else:
+                if self.game.flags > 0:
+                    self.game.grid[row][col].toggle_flag()
+                    self.game.flags -= 1
 
         if self.check_victory():
             self.victory()
@@ -432,11 +478,11 @@ class Minesweeper:
         self.clear_window()
         self.set_background("image\\background.jpg")
 
-        # Création de la frame pour contenir les messages de victoire et l'entrée de pseudo
+        # Frame de défaite avec couleur grise et effet bois sur la bordure
         defeat_frame = tk.Frame(self.root, bg="grey", relief="raised", bd=25, padx=20, pady=20)
-        defeat_frame.pack(pady=20) # Padding extérieur pour espacer la frame du reste
+        defeat_frame.pack(pady=20)  # Espacement extérieur pour séparer la frame
 
-        # Label principal de défaite
+        # Label principal de défaite en blanc sur fond gris
         label = tk.Label(defeat_frame, text="Dommage, vous avez perdu.", font=("Arial", 24), bg="grey", fg="white")
         label.pack(pady=50)
 
@@ -447,22 +493,26 @@ class Minesweeper:
         timer_label.pack(pady=10)
         self.elapsed_time = 0
 
-        # Bouton "Reprendre"
-        replay_btn = tk.Button(self.root, text="Reprendre", font=("Arial", 14), bg="brown", fg="white", relief="raised",
-                               bd=5,
-                               command=lambda: self.retake_game(self.game.seed, self.game.player))
+        # Bouton "Reprendre" avec effet bois
+        replay_btn = tk.Button(
+            self.root, text="Reprendre", font=("Arial", 14), bg="#8B4513", fg="white", relief="raised", bd=5,
+            command=lambda: self.retake_game(self.game.seed, self.game.player)
+        )
         replay_btn.pack(pady=5)
 
-        # Bouton "Rejouer"
-        replay_btn = tk.Button(self.root, text="Rejouer", font=("Arial", 14), bg="brown", fg="white", relief="raised",
-                               bd=5,
-                               command=lambda: self.replay_game(self.game.seed, self.game.player))
+        # Bouton "Rejouer" avec effet bois
+        replay_btn = tk.Button(
+            self.root, text="Rejouer", font=("Arial", 14), bg="#8B4513", fg="white", relief="raised", bd=5,
+            command=lambda: self.replay_game(self.game.seed, self.game.player)
+        )
         replay_btn.pack(pady=5)
 
-        # Bouton "Retour au Menu Principal"
-        back_button = tk.Button(self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="brown", fg="white",
-                                relief="raised", bd=5,
-                                command=self.load_main_menu)
+        # Bouton "Retour au Menu Principal" avec effet bois
+        back_button = tk.Button(
+            self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="#8B4513", fg="white", relief="raised",
+            bd=5,
+            command=self.load_main_menu
+        )
         back_button.pack(pady=10)
 
     def save_game(self, victory):
