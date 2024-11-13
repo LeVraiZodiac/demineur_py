@@ -10,9 +10,11 @@ class Case:
         self.color = ["#d7b899", "#19a4d2", "#1976d2", "#4d19d2", "#7c19d2", "#bc19d2", "#CC0099", "#d21947", "#d21919"]
 
     def toggle_flag(self):
-        if not self.is_revealed:
-            self.is_flagged = not self.is_flagged
-            self.button.config(text="⚑" if self.is_flagged else "", fg="red")
+        if self.is_revealed:
+            return False
+        self.is_flagged = not self.is_flagged
+        self.button.config(text="⚑" if self.is_flagged else "", fg="red")
+        return True
 
     def reveal(self):
         if not self.is_flagged and self.button:
