@@ -13,7 +13,7 @@ class Minesweeper:
     def __init__(self, root):
         self.root = root
         self.root.title("Démineur")
-        self.root.attributes("-fullscreen", True)
+        self.root.geometry("1536x864")
         self.root.configure(bg="orange")
         self.game = None
         self.timer_label = None
@@ -30,6 +30,10 @@ class Minesweeper:
     def load_main_menu(self):
         self.clear_window()
         self.set_background("image\\background.jpg")
+
+        # Afficher la résolution de l'écran
+        print(self.root.winfo_screenwidth())
+        print(self.root.winfo_screenheight())
 
         # Label "Démineur" avec un effet bois
         self.label = tk.Label(
@@ -335,7 +339,7 @@ class Minesweeper:
                 relief="raised",
                 bd=5
             )
-            self.timer_label.pack(pady=60)
+            self.timer_label.pack(pady=40)
 
         # Création de la frame avec un style bois
         self.frame = tk.Frame(
@@ -344,7 +348,7 @@ class Minesweeper:
             bd=10,  # Bordure de 10 pixels
             relief="ridge"  # Bordure style crête pour un effet sculpté
         )
-        self.frame.pack(pady=20)  # Espacement vertical pour bien encadrer la grille
+        self.frame.pack(pady=5)  # Espacement vertical pour bien encadrer la grille
 
         # Création de la grille de boutons
         rows, cols, mines = self.game.difficulty
