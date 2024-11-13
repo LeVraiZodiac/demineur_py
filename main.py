@@ -17,11 +17,18 @@ class Minesweeper:
         self.elapsed_time = 0
         self.load_main_menu()
 
+    # Set the background image
     def set_background(self, image_path):
-        # Set the background image
+        self.root.update_idletasks()
+        window_width = self.root.winfo_width()
+        window_height = self.root.winfo_height()
+
         background_image = Image.open(image_path)
+        background_image = background_image.resize((window_width, window_height), Image.LANCZOS)
+
         background_photo = ImageTk.PhotoImage(background_image)
         background_label = tk.Label(self.root, image=background_photo)
+
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
         self.root.photo = background_photo
 
@@ -113,10 +120,19 @@ class Minesweeper:
                 difficulty_label.pack()
 
                 if score:
-                    score_text = f"Records de {score['player']} avec un temps de {round(score['best_time'], 2)} sec"
+                    score_text = f"Records de {score['player']}"
                     score_label = tk.Label(difficulty_frame, text=score_text, font=("Arial", 14),
                                            bg=difficulty_colors[difficulty], anchor="center")
                     score_label.pack()
+                    score_text = f"Avec un temps de {round(score['best_time'], 2)} sec sur la seed {score['seed']}"
+                    score_label = tk.Label(difficulty_frame, text=score_text, font=("Arial", 14),
+                                           bg=difficulty_colors[difficulty], anchor="center")
+                    score_label.pack()
+                    back_button = tk.Button(
+                        difficulty_frame, text="Défier", font=("Arial", 14), bg="#8B4513", fg="white",
+                        relief="raised", bd=5, command=lambda seed=score['seed'], player=score['player']:
+                        self.challenge_game(score['seed'], score['player']))
+                    back_button.pack(pady=2)
                 else:
                     no_win_text = "Encore aucune victoire dans cette difficulté"
                     no_win_label = tk.Label(difficulty_frame, text=no_win_text, font=("Arial", 14),
@@ -186,7 +202,7 @@ class Minesweeper:
                 self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="#8B4513", fg="white",
                 relief="raised", bd=5, command=self.load_main_menu
             )
-            button.pack(pady=20)
+            button.pack(pady=10)
             return
 
         # Load saved scores
@@ -194,8 +210,8 @@ class Minesweeper:
             scores = json.load(f)
 
         # Frame for search bar
-        search_frame = tk.Frame(self.root, bg="#A0522D", relief="sunken", bd=5, padx=5, pady=5)
-        search_frame.pack(pady=1, padx=600, fill="x")
+        search_frame = tk.Frame(self.root, bg="#A0522D", relief="sunken", bd=5)
+        search_frame.pack(pady=20, padx=10)
 
         search_label = tk.Label(search_frame, text="Rechercher par seed :", font=("Arial", 14), bg="#A0522D",
                                 fg="white")
@@ -442,18 +458,18 @@ class Minesweeper:
 
         # Save button
         save_btn = tk.Button(victory_frame, text="Enregistrer le pseudo", font=("Arial", 14), command=save_pseudo, fg="white",
-                             bg="brown")
+                             bg="#8B4513")
         save_btn.pack(pady=10)
 
         # Replay button
         replay_btn = tk.Button(self.root, text="Rejouer", font=("Arial", 14),
                                command=lambda: self.replay_game(self.game.seed, self.game.player), fg="white",
-                               bg="brown")
+                               bg="#8B4513")
         replay_btn.pack(pady=10)
 
         # Main menu button
         main_menu_btn = tk.Button(self.root, text="Retour au menu", font=("Arial", 14), command=self.load_main_menu,
-                                  fg="white", bg="brown")
+                                  fg="white", bg="#8B4513")
         main_menu_btn.pack(pady=10)
 
     def game_over(self):
@@ -491,9 +507,18 @@ class Minesweeper:
         timer_label.pack(pady=10)
         self.elapsed_time = 0
 
+        # Retake button
+        replay_btn = tk.Button(
+            self.root, text="Reprendre", font=("Arial", 14), bg="#8B4513", fg="white", relief="raised", bd=5,
+            command=lambda: self.retake_game(self.game.seed, self.game.player)
+        )
+        replay_btn.pack(pady=5)
+
         # Replay button
-        replay_btn = tk.Button(self.root, text="Rejouer", font=("Arial", 14), bg="#8B4513", fg="white", relief="raised",
-                               bd=5, command=lambda: self.retake_game(self.game.seed, self.game.player))
+        replay_btn = tk.Button(
+            self.root, text="Rejouer", font=("Arial", 14), bg="#8B4513", fg="white", relief="raised", bd=5,
+            command=lambda: self.replay_game(self.game.seed, self.game.player)
+        )
         replay_btn.pack(pady=5)
 
         # Back to main menu button
