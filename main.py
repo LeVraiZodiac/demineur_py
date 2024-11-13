@@ -216,7 +216,7 @@ class Minesweeper:
 
         # Cadre principal pour les parties sauvegardées avec effet bois
         self.saved_games_frame = tk.Frame(self.root, bg="#8B4513", relief="raised", bd=25, padx=20, pady=20)
-        self.saved_games_frame.pack(fill="both", expand=True, pady=20, padx=20)
+        self.saved_games_frame.pack(fill="both", expand=True, pady=5, padx=20)
 
         # Canvas pour les parties sauvegardées
         self.saved_games_canvas = tk.Canvas(self.saved_games_frame, bg="#D2B48C", highlightthickness=0)
@@ -268,48 +268,48 @@ class Minesweeper:
 
             # Appliquer le style de la victory_frame pour chaque carte de sauvegarde
             card_frame = tk.Frame(self.saved_games_inner_frame, bg="orange", relief="raised", bd=10, padx=20, pady=20)
-            card_frame.grid(row=row, column=column, padx=15, pady=15, sticky="nsew")
+            card_frame.grid(row=row, column=column, padx=5, pady=5, sticky="nsew")
 
             # Informations de sauvegarde formatées
             difficulty = tuple(score['difficulty'])
             result = "Victoire" if score['victory'] else "Défaite"
 
             score_label_text = f"Seed: {score['seed']}"
-            score_label = tk.Label(card_frame, text=score_label_text, font=("Arial", 14), bg="orange", fg="white")
-            score_label.pack(side="top", pady=5)
+            score_label = tk.Label(card_frame, text=score_label_text, font=("Arial", 10), bg="orange", fg="white")
+            score_label.pack(side="top", pady=2)
 
             difficulty_text = f"Difficulté: {difficulties_names[difficulty]} - {result}"
-            difficulty_label = tk.Label(card_frame, text=difficulty_text, font=("Arial", 14), bg="orange", fg="white")
-            difficulty_label.pack(side="top", pady=5)
+            difficulty_label = tk.Label(card_frame, text=difficulty_text, font=("Arial", 10), bg="orange", fg="white")
+            difficulty_label.pack(side="top", pady=2)
 
             player_text = f"Joueur: {score['player']}"
-            player_label = tk.Label(card_frame, text=player_text, font=("Arial", 14), bg="orange", fg="white")
-            player_label.pack(side="top", pady=5)
+            player_label = tk.Label(card_frame, text=player_text, font=("Arial", 10), bg="orange", fg="white")
+            player_label.pack(side="top", pady=2)
 
             time_text = f"Temps: {round(score['best_time'], 2)} sec"
-            time_label = tk.Label(card_frame, text=time_text, font=("Arial", 14), bg="orange", fg="white")
-            time_label.pack(side="top", pady=5)
+            time_label = tk.Label(card_frame, text=time_text, font=("Arial", 10), bg="orange", fg="white")
+            time_label.pack(side="top", pady=2)
 
             # Boutons pour les actions de la sauvegarde
             if not score['victory']:
-                replay_btn = tk.Button(card_frame, text="Reprendre", font=("Arial", 14), bg="brown", fg="white",
+                replay_btn = tk.Button(card_frame, text="Reprendre", font=("Arial", 10), bg="brown", fg="white",
                                        command=lambda seed=score['seed'], player=score['player']: self.retake_game(seed,
                                                                                                                    player))
-                replay_btn.pack(side="top", pady=5)
+                replay_btn.pack(side="top", pady=2)
 
-            replay_btn = tk.Button(card_frame, text="Rejouer", font=("Arial", 14), bg="brown", fg="white",
+            replay_btn = tk.Button(card_frame, text="Rejouer", font=("Arial", 10), bg="brown", fg="white",
                                    command=lambda seed=score['seed'], player=score['player']: self.replay_game(seed,
                                                                                                                player))
-            replay_btn.pack(side="top", pady=5)
+            replay_btn.pack(side="top", pady=2)
 
             if score['player'] is not None:
-                challenge_btn = tk.Button(card_frame, text="Défier", font=("Arial", 14), bg="brown", fg="white",
+                challenge_btn = tk.Button(card_frame, text="Défier", font=("Arial", 10), bg="brown", fg="white",
                                           command=lambda seed=score['seed'],
                                                          player=score['player']: self.challenge_game(seed, player))
-                challenge_btn.pack(side="top", pady=5)
+                challenge_btn.pack(side="top", pady=2)
 
             column += 1
-            if column > 4:
+            if column > 6:
                 column = 1
                 row += 1
 
