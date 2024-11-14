@@ -440,7 +440,7 @@ class Minesweeper:
         # Display victory message
         print(self.game.versus_player)
         print(self.game.player)
-        if self.game.versus_player is None or self.game.versus_player is not self.game.player:
+        if self.game.versus_player is None or self.game.versus_player is self.game.player:
             label = tk.Label(victory_frame, text="Bravo, tu es le GOAT que tu pense être", font=("Arial", 24), fg="white", bg="orange")
             label.pack(pady=16)
         else:
