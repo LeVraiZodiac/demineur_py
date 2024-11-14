@@ -21,12 +21,12 @@ class Minesweeper:
         self.load_main_menu()
 
     # Set the background image
-    def set_background(self, image_path):
+    def set_background(self):
         self.root.update_idletasks()
         window_width = self.root.winfo_width()
         window_height = self.root.winfo_height()
 
-        background_image = Image.open(image_path)
+        background_image = Image.open("image/background.jpg")
         background_image = background_image.resize((window_width, window_height), Image.LANCZOS)
 
         background_photo = ImageTk.PhotoImage(background_image)
@@ -38,7 +38,7 @@ class Minesweeper:
     def load_main_menu(self):
         # Load the main menu with options
         self.clear_window()
-        self.set_background("image/background.jpg")
+        self.set_background()
 
         # Title label
         self.label = tk.Label(
@@ -153,7 +153,7 @@ class Minesweeper:
     def load_difficulty_menu(self):
         # Load the difficulty selection menu
         self.clear_window()
-        self.set_background("image/background.jpg")
+        self.set_background()
 
         # Difficulty selection label
         label = tk.Label(
@@ -191,7 +191,7 @@ class Minesweeper:
     def load_saved_games_menu(self):
         # Load saved games menu
         self.clear_window()
-        self.set_background("image/background.jpg")
+        self.set_background()
 
         # Title label
         label = tk.Label(
@@ -337,7 +337,7 @@ class Minesweeper:
 
     def load_grid(self):
         self.clear_window()
-        self.set_background("image/background.jpg")
+        self.set_background()
 
         # Create the timer label if it doesn't exist
         if not self.timer_label:
@@ -447,7 +447,7 @@ class Minesweeper:
     def victory(self):
         self.game.is_running = False
         self.clear_window()
-        self.set_background("image/background.jpg")
+        self.set_background()
         self.timer_label = None
 
         # Create a frame for the victory message and player name input
@@ -531,7 +531,7 @@ class Minesweeper:
 
     def show_defeat_screen(self):
         self.clear_window()
-        self.set_background("image/background.jpg")
+        self.set_background()
 
         # Create defeat screen frame
         defeat_frame = tk.Frame(self.root, bg="grey", relief="raised", bd=25, padx=20, pady=20)
