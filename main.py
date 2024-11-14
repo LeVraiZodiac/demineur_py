@@ -70,26 +70,40 @@ class Minesweeper:
         # Load and display the best scores from saved games
         scores_file = "scores.json"
 
+        # Frame to hold the score elements
+        scores_frame = tk.Frame(self.root, bg="orange", relief="raised", bd=25)
+        scores_frame.pack(pady=10, padx=10, fill='x')
+
+        # Colors for each difficulty level
+        difficulty_colors = {
+            Difficulty.EASY: "#cd7f32",  # Bronze
+            Difficulty.MEDIUM: "#c0c0c0",  # Silver
+            Difficulty.HARD: "#ffd700",  # Gold
+        }
+
+        difficulties_names = {
+            Difficulty.EASY: "Facile",
+            Difficulty.MEDIUM: "Moyen",
+            Difficulty.HARD: "Difficile"
+        }
+
+        best_scores = {Difficulty.EASY: None, Difficulty.MEDIUM: None, Difficulty.HARD: None}
+
         if not os.path.exists(scores_file) or os.path.getsize(scores_file) == 0:
-            score_label = tk.Label(
-                self.root, text="Parties Sauvegardées", font=("Impact", 44), bg="#D2691E", fg="white",
-                relief="raised", bd=25
-            )
-            score_label.pack(pady=10)
+            for difficulty, score in best_scores.items():
+                difficulty_frame = tk.Frame(scores_frame, bg=difficulty_colors[difficulty], bd=5, relief="solid")
+                difficulty_frame.pack(side="left", padx=10, pady=10, expand=True)
+
+                difficulty_label = tk.Label(difficulty_frame, text=difficulties_names[difficulty],
+                                            font=("Arial", 18, 'bold'), bg=difficulty_colors[difficulty],
+                                            anchor="center")
+                difficulty_label.pack()
         else:
             with open(scores_file, 'r') as f:
                 try:
                     scores = json.load(f)
                 except json.JSONDecodeError:
                     scores = []
-
-            difficulties_names = {
-                Difficulty.EASY: "Facile",
-                Difficulty.MEDIUM: "Moyen",
-                Difficulty.HARD: "Difficile"
-            }
-
-            best_scores = {Difficulty.EASY: None, Difficulty.MEDIUM: None, Difficulty.HARD: None}
 
             # Find the best scores for each difficulty
             for score in scores:
@@ -98,16 +112,6 @@ class Minesweeper:
                     if best_scores[difficulty] is None or score['best_time'] < best_scores[difficulty]['best_time']:
                         best_scores[difficulty] = score
 
-            # Frame to hold the score elements
-            scores_frame = tk.Frame(self.root, bg="orange", relief="raised", bd=25)
-            scores_frame.pack(pady=10, padx=10, fill='x')
-
-            # Colors for each difficulty level
-            difficulty_colors = {
-                Difficulty.EASY: "#cd7f32",  # Bronze
-                Difficulty.MEDIUM: "#c0c0c0",  # Silver
-                Difficulty.HARD: "#ffd700",  # Gold
-            }
 
             # Display best scores horizontally for each difficulty
             for difficulty, score in best_scores.items():
@@ -376,11 +380,17 @@ class Minesweeper:
         # Start the timer
         self.update_timer()
 
+    def print_if_versus(self):
+        if self.game.versus_player is not None and self.game.versus_player is not self.game.player:
+            return f"Vous VS {self.game.versus_player} |"
+        else:
+            return ""
+
     def update_timer(self):
         if self.timer_label and self.game and self.game.start_time > 0 and self.game.is_running:
             self.elapsed_time = time.time() - self.game.start_time
             formatted_time = round(self.elapsed_time, 2)
-            self.timer_label.config(text=f"Seed: {self.game.seed} | Time: {formatted_time} sec | ⚑ {self.game.flags}")
+            self.timer_label.config(text=f"Seed: {self.game.seed} | {self.print_if_versus()} Time: {formatted_time} sec | ⚑ {self.game.flags}")
         self.root.after(100, self.update_timer)
 
     def clear_window(self):
@@ -428,24 +438,42 @@ class Minesweeper:
         victory_frame.pack(pady=20)
 
         # Display victory message
-        label = tk.Label(victory_frame, text="Bravo, tu es le GOAT que tu pense être", font=("Arial", 24), fg="white", bg="orange")
-        label.pack(pady=10)
+        print(self.game.versus_player)
+        print(self.game.player)
+        if self.game.versus_player is None or self.game.versus_player is not self.game.player:
+            label = tk.Label(victory_frame, text="Bravo, tu es le GOAT que tu pense être", font=("Arial", 24), fg="white", bg="orange")
+            label.pack(pady=16)
+        else:
+            if self.game.versus_time < self.elapsed_time:
+                label = tk.Label(victory_frame,
+                                 text=f"Victoire mais {self.game.versus_player} a gagné de {round(self.elapsed_time - self.game.versus_time, 2)} sec",
+                                 font=("Arial", 24),
+                                 fg="white", bg="orange")
+                label.pack(pady=16)
+            else:
+                label = tk.Label(victory_frame,
+                                 text=f"Victoire tu as battu le record de {self.game.versus_player} de {round(self.game.versus_time - self.elapsed_time, 2)} sec",
+                                 font=("Arial", 24),
+                                 fg="white", bg="orange")
+                label.pack(pady=16)
+            self.game.versus_time = None
+            self.game.versus_player = None
 
         # Show the seed
-        label = tk.Label(victory_frame, text=f"Seed : {self.game.seed}", font=("Arial", 24), fg="white", bg="orange")
+        label = tk.Label(victory_frame, text=f"Seed : {self.game.seed}", font=("Arial", 16), fg="white", bg="orange")
         label.pack(pady=10)
 
         # Show the elapsed time
         formatted_time = round(self.elapsed_time, 2)
-        timer_label = tk.Label(victory_frame, text=f"Temps : {formatted_time} sec", font=("Arial", 14), fg="white",
+        timer_label = tk.Label(victory_frame, text=f"Temps : {formatted_time} sec", font=("Arial", 16), fg="white",
                                bg="orange")
         timer_label.pack(pady=10)
 
         # Player name input field
-        pseudo_label = tk.Label(victory_frame, text="Entrer votre pseudo :", font=("Arial", 14), fg="white", bg="orange")
+        pseudo_label = tk.Label(victory_frame, text="Entrer votre pseudo :", font=("Arial", 16), fg="white", bg="orange")
         pseudo_label.pack(pady=10)
 
-        pseudo_entry = tk.Entry(victory_frame, font=("Arial", 14))
+        pseudo_entry = tk.Entry(victory_frame, font=("Arial", 16))
         pseudo_entry.pack(pady=10)
 
         # Function to save the player's nickname and finish the game
@@ -546,6 +574,8 @@ class Minesweeper:
         score_data = {
             "seed": self.game.seed,
             "player": self.game.player,
+            "versus_player": self.game.versus_player,
+            "versus_time": self.game.versus_time,
             "time": self.elapsed_time,
             "difficulty": self.game.difficulty,
             "first_position": self.game.first_position,
@@ -611,6 +641,8 @@ class Minesweeper:
             # Initialize the game with saved parameters
             self.game = Game(rows, cols, mines, difficulty, seed=seed)
             self.game.first_position = saved_score['first_position']
+            self.game.versus_player = player
+            self.game.versus_time = saved_score['best_time']
             self.game.start_time = time.time()
             self.load_grid()
 
@@ -637,6 +669,8 @@ class Minesweeper:
             self.game.player = saved_score['player']
             self.game.start_time = time.time()
             self.game.best_time = saved_score['best_time']
+            self.game.versus_player = saved_score['versus_player']
+            self.game.versus_time = saved_score['versus_time']
             self.load_grid()
 
             # Restore grid state from saved data
@@ -662,6 +696,8 @@ class Minesweeper:
             self.game.player = saved_score['player']
             self.game.start_time = time.time() - saved_score['time']
             self.game.best_time = saved_score['best_time']
+            self.game.versus_player = saved_score['versus_player']
+            self.game.versus_time = saved_score['versus_time']
             self.load_grid()
 
             # Restore grid state from saved data

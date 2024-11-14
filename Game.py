@@ -21,6 +21,8 @@ class Game:
         self.flags = mines
         self.seed = seed
         self.player = None
+        self.versus_player = None
+        self.versus_time = None
         self.start_time = 0
         self.best_time = None
 
