@@ -6,7 +6,7 @@ Instakker Pillow :
 ```python3 -m pip install --upgrade pip```
 ```python3 -m pip install --upgrade Pillow```
 ## Problème de résolution
-> [!ERROR]
+> [!CAUTION]
 > Il est possible que la résolution du jeu ne supporte pas la résolution de l'écran de votre PC.
 > Si l'affichage est dégradé, vous pouvez changer la résolution dans `Minesweeper.py` à la ligne 16
 ## Branch
