@@ -2,13 +2,6 @@ import random
 import time
 from Case import Case
 
-
-class Difficulty:
-    EASY = (9, 9, 10)
-    MEDIUM = (16, 16, 40)
-    HARD = (16, 30, 99)
-
-
 class Game:
     def __init__(self, rows, cols, mines, difficulty, seed=None):
         # Initialize the game parameters
