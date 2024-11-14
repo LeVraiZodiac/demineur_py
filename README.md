@@ -8,19 +8,23 @@ Chacun possède une branch, avant de prog, pensez à `pull`. Ne pas `push` votre
 > Avant de `push` vos modifications, annoncez aux autres les fichiers que vous avez modifiers.
 ## To Do
 ### Evan
-  Créer les fonctions create_grid(), place_mines(), check_win()
+  Créer les fonctions nécesaire pour générer une partie create_grid(), place_mines(), check_win()...
+  S'occupe du diapo
 ### Dylan
+  Faire les diagrammes de Classe et d'Etat
   Créer une class game qui permet de stocker le nombre de mines, l'état de la partie et la longueur, la largeur de la grid (Game.py)
 ### Vincent
-  Créer un système de logs. Sauvegarder la génération d'une partie + l'état d'une partie en cours
+  Fait l'ensemble des interfaces, menus, position des boutons... avec Tkinter
 ### Victor
-  Créer un système de restart, mettre en place Tkinter
+  Créer un système de restart, retake, challenge
+  Sauvegarder l'état des parties
+  Soutient l'ensemble des algorithmes (débug, aide, finalisation, optimisation)
 ## Liste des Story
 #### Story 1 ✅
 #### Story 2 ✅
 #### Story 3 ✅
 #### Story 4 ✅
-#### Story 5 ?
+#### Story 5 ✅
 #### Story 6 ✅
 #### Story 7 ✅
 #### Story 8 ✅
