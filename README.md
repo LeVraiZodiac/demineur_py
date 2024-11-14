@@ -1,10 +1,10 @@
 # Démineur
 ## Prérequis
-Installer Tkinker pour WSL :
-```sudo apt install python3-tk```
-Instakker Pillow :
-```python3 -m pip install --upgrade pip```
-```python3 -m pip install --upgrade Pillow```
+Installer Tkinker pour WSL : <br>
+```sudo apt install python3-tk``` <br>
+Instakker Pillow : <br>
+```python3 -m pip install --upgrade pip``` <br>
+```python3 -m pip install --upgrade Pillow``` <br>
 ## Problème de résolution
 > [!CAUTION]
 > Il est possible que la résolution du jeu ne supporte pas la résolution de l'écran de votre PC.
