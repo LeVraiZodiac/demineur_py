@@ -61,7 +61,7 @@ class Minesweeper:
             self.root, text="Fermer", font=("Impact", 18), bg="#8B4513", fg="white",
             relief="raised", bd=5, command=self.root.destroy
         )
-        close_button.pack(pady=(5, 100))
+        close_button.pack(pady=(5, 70))
 
         # Display saved scores
         self.display_scores()
