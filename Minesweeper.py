@@ -13,7 +13,7 @@ class Minesweeper:
     def __init__(self, root):
         self.root = root
         self.root.title("Démineur")
-        self.root.geometry("1536x864")
+        self.root.geometry("1745x982")
         self.root.configure(bg="orange")
         self.game = None
         self.timer_label = None
@@ -64,7 +64,7 @@ class Minesweeper:
             self.root, text="Fermer", font=("Impact", 18), bg="#8B4513", fg="white",
             relief="raised", bd=5, command=self.root.destroy
         )
-        close_button.pack(pady=(5, 70))
+        close_button.pack(pady=(5, 180))
 
         # Display saved scores
         self.display_scores()
@@ -321,7 +321,7 @@ class Minesweeper:
                 challenge_btn.pack(side="top", pady=2)
 
             column += 1
-            if column > 6:
+            if column > 7:
                 column = 1
                 row += 1
 
@@ -379,6 +379,20 @@ class Minesweeper:
                 btn.grid(row=row, column=col, padx=1, pady=1)
                 self.game.grid[row][col].button = btn
                 btn.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
+
+        # Save button to main menu
+        save_button = tk.Button(
+            self.root, text="Sauvegarder", font=("Arial", 14), bg="#8B4513", fg="white",
+            relief="raised", bd=5, command=lambda state=False: self.save_game(state)
+        )
+        save_button.pack(pady=20)
+
+        # Back button to main menu
+        back_button = tk.Button(
+            self.root, text="Retour au Menu Principal", font=("Arial", 14), bg="#8B4513", fg="white",
+            relief="raised", bd=5, command=self.load_main_menu
+        )
+        back_button.pack(pady=20)
 
         # Start the timer
         self.update_timer()
