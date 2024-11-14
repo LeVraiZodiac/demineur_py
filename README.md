@@ -20,7 +20,7 @@ Chacun possède une branch, avant de prog, pensez à `pull`. Ne pas `push` votre
 #### Story 2 ✅
 #### Story 3 ✅
 #### Story 4 ✅
-#### Story 5 ?
+#### Story 5 ✅
 #### Story 6 ✅
 #### Story 7 ✅
 #### Story 8 ✅
