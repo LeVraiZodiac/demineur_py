@@ -421,7 +421,7 @@ class Minesweeper:
             return
         if self.game.reveal_case(row, col):
             if self.check_victory():
-                self.victory()
+                self.show_victory_screen()
         else:
             self.game_over()
 
@@ -436,7 +436,7 @@ class Minesweeper:
                     self.game.flags -= 1
 
         if self.check_victory():
-            self.victory()
+            self.show_victory_screen()
 
     def check_victory(self):
         mines_flagged = sum(1 for row in self.game.grid for case in row if case.is_mine and case.is_flagged)
@@ -444,7 +444,7 @@ class Minesweeper:
         total_cases = self.game.rows * self.game.cols
         return mines_flagged == self.game.mines and cases_revealed == total_cases - self.game.mines
 
-    def victory(self):
+    def show_victory_screen(self):
         self.game.is_running = False
         self.clear_window()
         self.set_background()
